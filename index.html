@@ -7,20 +7,7 @@
     display: flex;
     flex-direction: column;
 }
-.my-div-icon{
-background-image: url(https://cdn0.iconfinder.com/data/icons/small-n-flat/24/678111-map-marker-512.png);
-background-size: contain;
-height : '100%';
-width : '100%';
-}
-.my-div-icon1{
-background-image: url(http://maps.google.com/mapfiles/ms/icons/yellow-dot.png);
-background-size: contain;
-}
-.my-div-icon2{
-background-image: url(http://maps.google.com/mapfiles/ms/icons/green-dot.png);
-background-size: contain;
-}
+
     </style>
     <link
     rel="stylesheet"
@@ -67,8 +54,8 @@ background-size: contain;
                 <th>Quantity</th>
                 <th>Priority</th>
                 <th>City</th>
-                <th>Longitude</th>
                 <th>Latitude</th>
+                <th>Longitude</th>    
                 <th>Dispatch Status</th>
                 <th>Shipped Status</th>
                 <th>Order Date and Time</th>
@@ -107,7 +94,7 @@ background-size: contain;
         var jsonDataObject =[];
 
         $.getJSON('https://spreadsheets.google.com/feeds/list/1tqsM3SDC2-J5nhtrXl8Nv4JOIuvHYznbeealUYbqVKA/5/public/full?alt=json', function(data) {
-        for (var i = 0; i < data.feed.entry.length; ++i) {
+        for (var i = 0; i < data.feed .entry.length; ++i) {
 
             var json_data = {
                 "City": data.feed.entry[i].gsx$city.$t,
@@ -115,42 +102,44 @@ background-size: contain;
                 "Item" : data.feed.entry[i].gsx$item.$t,
                 "Latitude": parseFloat(data.feed.entry[i].gsx$latitude.$t),
                 "Longitude": parseFloat(data.feed.entry[i].gsx$longitude.$t),
-                "Priority": data.feed.entry[i].gsx$priority.$t
+                "Priority": data.feed.entry[i].gsx$priority.$t,
+                "DispatchStatus": data.feed.entry[i].gsx$dispatchstatus.$t,
+                "ShippedStatus": data.feed.entry[i].gsx$shippedstatus.$t
             };
             jsonDataObject.push(json_data);
             
             var icon = {
             iconUrl: 'https://cdn1.iconfinder.com/data/icons/basic-ui-elements-coloricon/21/06_1-512.png',
-            iconSize: [20, 30],
-            iconAnchor: [22, 94],
-            popupAnchor: [-3, -76],
-            //shadowUrl: 'my-icon-shadow.png',
-            //shadowSize: [68, 95],
-            //shadowAnchor: [22, 94]
+            iconSize:    [20, 30],
+            iconAnchor:  [10, 30],
+            popupAnchor: [0, -35],
+            
+
             }
             for (var j = 0; j < jsonDataObject.length; j++) {
                 
-                //var myIcon = L.divIcon({className: 'my-div-icon'});
-                if(jsonDataObject[j].Priority == 'HP')
+                if(jsonDataObject[j].DispatchStatus != 'YES' && jsonDataObject[j].ShippedStatus != 'YES')
                 {
                 icon.iconUrl="https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png"
                 icon.shadowUrl="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png"
                 //myIcon = L.divIcon({className: 'my-div-icon'});
                 }
-                else if(jsonDataObject[j].Priority == 'MP')
+                else if(jsonDataObject[j].DispatchStatus == 'YES' && jsonDataObject[j].ShippedStatus != 'YES')
                 {
                 icon.iconUrl="https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-yellow.png"
                 icon.shadowUrl="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png"
                 //myIcon = L.divIcon({className: 'my-div-icon1'});
                 }
-                else if(jsonDataObject[j].Priority == 'LP')
+                else if(jsonDataObject[j].DispatchStatus == 'YES' && jsonDataObject[j].ShippedStatus == 'YES')
                 {
                 icon.iconUrl="https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png"
                 icon.shadowUrl="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png"
                 //myIcon = L.divIcon({className: 'my-div-icon2'});
                 }
                 var myIcon = L.icon(icon);
-                var marker = L.marker(L.latLng(parseFloat(jsonDataObject[j].Latitude), parseFloat(jsonDataObject[j].Longitude)),{icon:myIcon }).addTo(map);
+                var marker = L.marker(L.latLng(parseFloat(jsonDataObject[j].Latitude), parseFloat(jsonDataObject[j].Longitude)),{icon: myIcon }).addTo(map);
+                //var marker = L.marker(L.latLng(parseFloat(jsonDataObject[j].Latitude), parseFloat(jsonDataObject[j].Longitude)));
+                
                 marker.bindPopup(jsonDataObject[j].City, {
                         autoClose: false
                 });
@@ -163,7 +152,7 @@ background-size: contain;
                         var marker = e.target;
                         popup = L.popup()
                         .setLatLng(marker.getLatLng())
-                        .setContent("Order ID: " + marker.myJsonData.OderID + " || Item: " +   marker.myJsonData.Item + " || City: " +   marker.myJsonData.City)
+                        .setContent("Order ID: " + marker.myJsonData.OderID + " || Item: " +   marker.myJsonData.Item )
                         .openOn(map);
                     }
 
@@ -199,8 +188,8 @@ background-size: contain;
           "OrderID" : data.feed.entry[i].gsx$orderid.$t,
           "TimeTaken": parseFloat(data.feed.entry[i].gsx$timetaken.$t),
           "Priority": data.feed.entry[i].gsx$priority.$t,
-          "Dispatch Status": data.feed.entry[i].gsx$dispatchstatus.$t,
-          "Shipped Status": data.feed.entry[i].gsx$shippedstatus.$t,
+          "DispatchStatus": data.feed.entry[i].gsx$dispatchstatus.$t,
+          "ShippedStatus": data.feed.entry[i].gsx$shippedstatus.$t,
           "Order Date and Time": data.feed.entry[i].gsx$orderdateandtime.$t,
           "Dispatch Date and Time": data.feed.entry[i].gsx$dispatchdateandtime.$t,
           "Shipped Date and Time": data.feed.entry[i].gsx$shippeddateandtime.$t,
@@ -264,9 +253,9 @@ background-size: contain;
                 	var myData_map, myData_order;
 
                     trHTML += '<tr><td>' + data.feed.entry[i].gsx$orderid.$t + 
-                        	  '</td><td>' + data.feed.entry[i].gsx$item.$t + 
-                        	  '</td><td>' + data.feed.entry[i].gsx$priority.$t + 
+                        	  '</td><td>' + data.feed.entry[i].gsx$item.$t + 	   
                         	  '</td><td>' + data.feed.entry[i].gsx$quantity.$t + 
+                              '</td><td>' + data.feed.entry[i].gsx$priority.$t +
                         	  '</td><td>'  + data.feed.entry[i].gsx$city.$t + 
                               '</td><td>' + data.feed.entry[i].gsx$latitude.$t +
                               '</td><td>' + data.feed.entry[i].gsx$longitude.$t +
@@ -288,6 +277,5 @@ background-size: contain;
     
 </script>
 </html>
-
 
 
